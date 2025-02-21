@@ -23,9 +23,9 @@ def space(fx):
         return result
     return wapper
 
-""" Find the total sales for each product across all stores. """
 # @space
 def total_sells(sales_data):
+    """ Find the total sales for each product across all stores. """
     sale_each_produce = {}
     for value in sales_data.values():
         for key,val in value.items():
@@ -35,12 +35,12 @@ def total_sells(sales_data):
                 sale_each_produce.update({key : val})
     return sale_each_produce
 total_sell = total_sells(sales_data)
-print(f"Total Price each Product : {total_sell}")
 
 
-""" Identify the store with the highest total sales (sum of all products). """
 @space
 def highest_sales(sales_data):
+    """ Identify the store with the highest total sales (sum of all products). """
+
     high_sale = {}
     for key,value in sales_data.items():
         total = 0
@@ -49,14 +49,12 @@ def highest_sales(sales_data):
         high_sale.update({key : total})
 
     high_selling_store = max([(value, key) for key, value in high_sale.items()])
-
     return high_selling_store
 
-print(f"highest sale store wise : {highest_sales(sales_data)}")
 
-""" Find the best-selling product (i.e., the product with the highest total sales). """
 @space
 def find_best_product(total_sells):
+    """ Find the best-selling product (i.e., the product with the highest total sales). """
     k = ""
     max = 0
     for key,val in total_sells.items():
@@ -64,18 +62,24 @@ def find_best_product(total_sells):
             max = val
             k = key
     return (k,max)
-print(f"highset selling product : {find_best_product(total_sell)}")
 
-""" Sort the stores based on their total sales in descending order and print the sorted result. """
 @space
 def high_sale_store(sales_data):
+    """ Sort the stores based on their total sales in descending order and print the sorted result. """
     list_store = {}
     for key,value in sales_data.items():
         total = 0
         for val in value.values():
             total += val
         list_store.update({key:total})
-    list_store = ({k : v for k,v in sorted(list_store.items(), key=lambda key: key[1], reverse=True)})
+    # list_store = ({k : v for k,v in sorted(list_store.items(), key=lambda key: key[1], reverse=True)})
+    list_store = (sorted(list_store.items(), key=lambda item: item[1], reverse=True))
+
     return list_store
 
-print(f"store wise List : {high_sale_store(sales_data)}")
+
+
+print(f"Total Price each Product : {total_sell}")
+print(f"highest sale store wise : {highest_sales(sales_data)}")
+print(f"highset selling product : {find_best_product(total_sell)}")
+print(f"store wise List : {dict(high_sale_store(sales_data))}")
