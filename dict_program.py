@@ -40,7 +40,6 @@ total_sell = total_sells(sales_data)
 @space
 def highest_sales(sales_data):
     """ Identify the store with the highest total sales (sum of all products). """
-
     high_sale = {}
     for key,value in sales_data.items():
         total = 0
