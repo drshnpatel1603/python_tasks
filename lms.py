@@ -1,9 +1,10 @@
 # Library Inventory Management System
-from logging import exception
 from datetime import date, timedelta
 
 class Library():
-    def addbook(self,store_book):
+    store_book = {'python': ['drshn', 30], 'java': ['dhruv', 20]}
+
+    def addbook(self):
         """ Add book in store  """
         try:
             title = input("enter book title : ")
@@ -15,10 +16,10 @@ class Library():
                 print(self.store_book)
             else :
                 print("This Book already in store")
-        except exception as e:
+        except Exception as e:
             print(e)
 
-    def removebook(self,store_book):
+    def removebook(self):
         """ Remove book in store """
         try:
             title = input("enter title of book you want to remove : ")
@@ -27,10 +28,10 @@ class Library():
                 print("remove book succesfully! ")
             else:
                 print("Book are not available ")
-        except exception as e:
+        except Exception as e:
             print(e)
 
-    def updatebook(self,store_book):
+    def updatebook(self):
         """ Update the Book Information """
         try:
             title = input("which book changes information : ")
@@ -48,10 +49,10 @@ class Library():
                 print(self.store_book)
             else:
                 print("book not found!")
-        except exception as e:
+        except Exception as e:
             print(e)
 
-    def searchbook(self,store_book):
+    def searchbook(self):
         """ Seching book in store """
         try:
             search_book = input("find book : ")
@@ -64,56 +65,87 @@ class Library():
 
 
 class User(Library):
-    def borrowbook(self,store_book,userdata):
+    userdata = {"dishant": [['python', '2025-02-25', '2025-03-11'], ['java', '2025-02-25', '2025-03-11']]}
+    # userdata = {}
+    borrowing_history = {}
+    hold_user_book = {}
+
+    def borrowbook(self):
         """ user can borrow book """
         try:
             book_name = input("which are book borrow : ")
-            if book_name in store_book and store_book.get(book_name)[1] >= 1:
+            if book_name in super().store_book and super().store_book.get(book_name)[1] >= 1:
                 user_name = input("enter User Name : ")
                 # """ if user borrow first time """
-                if userdata.get(user_name, "not found") == "not found":
+                if self.userdata.get(user_name, "not found") == "not found":
                     due_date = date.today() + timedelta(days=14)
                     due_date = due_date.strftime('%Y-%m-%d')
-                    userdata.update({user_name: [[book_name, date.today().strftime('%Y-%m-%d'), due_date]]})
-                    olddata = store_book.get(book_name)
-                    store_book[book_name] = [olddata[0],olddata[1]-1]
+                    self.userdata.update({user_name: [[book_name, date.today().strftime('%Y-%m-%d'), due_date]]})
+                    # update old Data
+                    olddata = super().store_book.get(book_name)
+                    super().store_book[book_name] = [olddata[0],olddata[1]-1]
+                    # book borrow history
+                    if not self.borrowing_history:
+                        self.borrowing_history.update({user_name : [[book_name, date.today().strftime('%Y-%m-%d'), due_date]]})
+                    else:
+                        self.borrowing_history[user_name].append([book_name, date.today().strftime('%Y-%m-%d'), due_date])
                     print(f"{book_name} book successfully borrow by {user_name}")
                 # """ if user borrow second time """
-                elif len(userdata.get(user_name)) == 1:
+                elif len(self.userdata.get(user_name)) == 1:
                     due_date = date.today() + timedelta(days=14)
                     due_date = due_date.strftime('%Y-%m-%d')
-                    userdata[user_name].append([book_name, date.today().strftime('%Y-%m-%d'), due_date])
-                    olddata = store_book.get(book_name)
-                    store_book[book_name] = [olddata[0],olddata[1]-1]
+                    self.userdata[user_name].append([book_name, date.today().strftime('%Y-%m-%d'), due_date])
+                    # update old Data
+                    olddata = self.store_book.get(book_name)
+                    super().store_book[book_name] = [olddata[0],olddata[1]-1]
+                    # book borrow history
+                    self.borrowing_history[user_name].append([book_name, date.today().strftime('%Y-%m-%d'), due_date])
                     print(f"{book_name} book successfully borrow by {user_name}")
                 # """ if user borrow third time """
                 else:
                     print("You have already borrow 2 books.")
             else:
-                print("book not available!")
-        except exception as e:
+                print("book not available right now!" )
+                username = input("enter your name for holding dict :")
+                if book_name in self.hold_user_book:
+                    self.hold_user_book.get(book_name).append([username])
+                else:
+                    self.hold_user_book.update({book_name : [[username]]})
+
+        except Exception as e:
             print(e)
 
-    def returnbook(self,store_book, userdata):
+    def returnbook(self):
+        """ use can return book """
         try:
             username = input("enter user name : ")
             if username in self.userdata:
                 bookname = input("enter book name : ")
                 for index,val in enumerate(self.userdata.get(username)):
                     if val[0] == bookname:
-                        del userdata.get(username)[index]
-                        self.store_book.get(bookname)
-                        olddata = self.store_book.get(bookname)
-                        self.store_book[bookname] = [olddata[0], olddata[1] + 1]
-                        print("Successfull return book!")
-                        if len(self.userdata.get(username)) == 0:
-                            del self.userdata[username]
+                        if val[2] > date.today().strftime('%Y-%m-%d'):
+                            del self.userdata.get(username)[index]
+                            super().store_book.get(bookname)
+                            olddata = super().store_book.get(bookname)
+                            super().store_book[bookname] = [olddata[0], olddata[1] + 1]
+                            print("Successfull return book!")
+                            if len(self.userdata.get(username)) == 0:
+                                del self.userdata[username]
+                        else:
+                            print("you pay panalty is 10rs")
+                            del self.userdata.get(username)[index]
+                            super().store_book.get(bookname)
+                            olddata = super().store_book.get(bookname)
+                            super().store_book[bookname] = [olddata[0], olddata[1] + 1]
+                            print("Successfull return book!")
+                            if len(self.userdata.get(username)) == 0:
+                                del self.userdata[username]
             else:
                 print(f"{username} not borrow any book")
-        except exception as e:
+        except Exception as e:
             print(e)
 
-    def userDetail(self,userdata):
+    def userDetail(self):
         try:
             name = input("enter user name : ")
             if name in self.userdata:
@@ -123,13 +155,35 @@ class User(Library):
                     print(f"book : {user_info[0]}, isu date : {user_info[1]}, due date : {user_info[2]}")
             else:
                 print(f"{name} not borrow any books.")
-        except exception as e:
+        except Exception as e:
+            print(e)
+
+    def display_overdue_book(self):
+        try:
+            for name,data in self.userdata.items():
+                for value in data:
+                    if date.today().strftime('%Y-%m-%d') > value[2]:
+                        print(name,value)
+        except Exception as e:
+            print(e)
+
+    def display_borrow_history(self):
+        try:
+            username = input("enter user name : ")
+            for name,value in self.borrowing_history.items():
+                if name == username:
+                    print(name, value)
+        except Exception as e:
+            print(e)
+
+    def display_holding_list(self):
+        try:
+            for name,value in self.hold_user_book.items():
+                    print(name, value)
+        except Exception as e:
             print(e)
 
 #  Start the Program
-store_book = {'python': ['drshn', 30], 'java': ['dhruv', 20]}
-userdata = {"dishant" : [['python', '2025-02-25', '2025-03-11'], ['java', '2025-02-25', '2025-03-11']]}
-l1 = Library()
 u1 = User()
 while(True):
     try:
@@ -142,26 +196,35 @@ while(True):
         print(" 6. borrow books.")
         print(" 7. user can return book.")
         print(" 8. show specific user detail.")
-        print(" 9. exit")
+        print(" 9. Display overdue books.")
+        print("10. user show borrow history.")
+        print("11. book holding user list.")
+        print("12. exit")
         user_input = int(input("Press Number want you perform operations : "))
 
         match(user_input):
             case 1:
-                l1.addbook(store_book)
+                u1.addbook()
             case 2:
-                l1.removebook(store_book)
+                u1.removebook()
             case 3:
-                l1.updatebook(store_book)
+                u1.updatebook()
             case 4:
-                print(store_book)
+                print(u1.store_book)
             case 5:
-                l1.searchbook(store_book)
+                u1.searchbook()
             case 6:
-                u1.borrowbook(store_book,userdata)
+                u1.borrowbook()
             case 7:
-                u1.returnbook(store_book, userdata)
+                u1.returnbook()
             case 8:
-                u1.userDetail(userdata)
+                u1.userDetail()
+            case 9:
+                u1.display_overdue_book()
+            case 10:
+                u1.display_holding_list()
+            case 11:
+                u1.display_borrow_history()
             case _:
                 print("exit")
                 break
